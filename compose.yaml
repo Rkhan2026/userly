@@ -1,28 +1,37 @@
-version: '3.9'
+version: '3.9' # Specifies the version of the Docker Compose file format.
 
 services:
+  # Backend service configuration
   backend:
-    container_name: backend
-    image: backend
+    container_name: backend # Assigns a name to the container for easier identification.
+    image: backend # Specifies the image to be used for the container. This can be a custom-built image.
     build:
-      context: ./backend
-      dockerfile: backend.dockerfile
+      context: ./backend # Path to the directory containing the Dockerfile for building the image.
+      dockerfile: backend.dockerfile # Name of the Dockerfile to be used for building the image.
     ports:
-      - 4000:4000
+      - 4000:4000 # Maps port 4000 on the host to port 4000 on the container.
     environment:
-      - DATABASE_URL=postgresql://postgres:postgres@db:5432/postgres?schema=public
+      # Defines environment variables for the backend service.
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/postgres?schema=public 
+        # Specifies the PostgreSQL database URL for the backend to connect to.
+        # "db" refers to the service name of the database, allowing Docker Compose to handle networking.
+
+  # Database service configuration
   db:
-    container_name: db
-    image: postgres:12
-    restart: always
+    container_name: db # Assigns a name to the database container for easier identification.
+    image: postgres:12 # Uses the official PostgreSQL 12 image from Docker Hub.
+    restart: always # Ensures the container restarts automatically in case of failure.
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: postgres
+      # Sets environment variables for PostgreSQL.
+      POSTGRES_USER: postgres # Username for accessing the database.
+      POSTGRES_PASSWORD: postgres # Password for accessing the database.
+      POSTGRES_DB: postgres # The name of the default database to be created.
     ports:
-      - 5432:5432
+      - 5432:5432 # Maps port 5432 on the host to port 5432 on the container for database access.
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - pgdata:/var/lib/postgresql/data 
+        # Attaches a named volume to persist database data, ensuring it is not lost when the container is restarted.
 
 volumes:
+  # Defines a named volume for persisting database data
   pgdata: {}

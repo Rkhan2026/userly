@@ -1,21 +1,36 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
+// This is your Prisma schema file, which defines the structure of your database.
+// Learn more about the Prisma schema in the docs: https://pris.ly/d/prisma-schema
 
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+// Prisma Accelerate is an optional feature to optimize query performance and scale.
+// It is especially useful for serverless or edge function environments.
+// More info: https://pris.ly/cli/accelerate-init
 
+// Generator block: Defines the Prisma Client to be generated.
 generator client {
-  provider = "prisma-client-js"
+  provider = "prisma-client-js" 
+  // Specifies the provider for the generated client.
+  // "prisma-client-js" generates a JavaScript/TypeScript client to interact with the database.
 }
 
+// Datasource block: Specifies the database connection details.
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider = "postgresql" 
+  // Indicates the database provider being used, in this case, PostgreSQL.
+  
+  url      = env("DATABASE_URL") 
+  // The `url` is retrieved from the environment variable `DATABASE_URL`.
+  // This keeps sensitive information (e.g., database credentials) out of the schema file.
 }
 
-//User model to create table with id as int autoincrement, name as string and email as string
+// Model definition for the "User" table in the database.
 model User {
-  id    Int     @id @default(autoincrement())
-  name  String
+  id    Int     @id @default(autoincrement()) 
+  // `id` is the primary key (`@id`).
+  // It is an integer that auto-increments with each new record (`@default(autoincrement())`).
+  
+  name  String 
+  // `name` is a required field that stores the user's name as a string.
+  
   email String 
+  // `email` is a required field that stores the user's email address as a string.
 }

@@ -1,132 +1,105 @@
 const express = require('express');
 const { PrismaClient } = require('@prisma/client');
 
+// Initialize Prisma Client to interact with the database
 const prisma = new PrismaClient();
+
+// Create an Express app instance
 const app = express();
 
-//json
+// Middleware Setup
+
+// Middleware to parse incoming JSON requests
 app.use(express.json());
 
-//CORS (Cross-Origin Resource Sharing)
-    //This code is typically used during development when the client (frontend) and server (backend) 
-    //are hosted on different origins (e.g., localhost:3000 and localhost:5000). 
-    //However, in production, it is safer to replace * with a list of trusted origins.
-
-//When a web application hosted on one domain (e.g., https://example.com) makes a 
-//request to a server on a different domain (e.g., https://api.example.com), the 
-//browser enforces same-origin policy restrictions. These restrictions block cross-origin 
-//requests unless the server explicitly allows them.
-//The provided middleware configures the server to respond with headers that 
-//relax these restrictions, allowing cross-origin requests.
-
+// CORS (Cross-Origin Resource Sharing) configuration
 app.use((req, res, next) => {
-    //This defines a middleware function in the Express.js app 
-    // (pp is assumed to be an Express instance). The middleware intercepts all 
-    // incoming requests before they are processed by the routes.
-
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  //This sets the Access-Control-Allow-Origin header, which specifies which origins are 
-  //allowed to make requests. 
-  //The value * means any origin can access the resource.
-
-  res.setHeader('Access-Control-Allow-Methods','GET, POST, PUT, DELETE');
-    //This header specifies the HTTP methods allowed for cross-origin requests. In this 
-    // case, the server permits 
-    // GET, POST, PUT, and DELETE requests from any origin
-
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-    //This header specifies which custom headers can be sent in the request. For 
-    // example, if the client sends a request with a Content-Type: application/json header, 
-    // the server allows it.
-
-  next();
-  //The next() function passes control to the next middleware or route handler. 
-  // Without this, the server would hang, as 
-  //the middleware would not pass the request down the chain.
+    // IMPORTANT: In production, NEVER use '*' for Access-Control-Allow-Origin.
+    // Replace '*' with the specific origin(s) of your frontend application(s).
+    res.setHeader('Access-Control-Allow-Origin', '*'); // Allows requests from any origin (for development)
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE'); // Allowed HTTP methods
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type'); // Allowed headers
+    next(); // Pass control to the next middleware or route handler
 });
 
+// API Endpoints
 
-//test api to check that it is connected using tools like Postman 
-//GET or open localhost:4000/test on browser
-app.get('/test', (req, res) => {
-  try {
-    res.status(200).json({ message: 'API is working' });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
+// Test endpoint to check if the API is working
+app.get('/test', async (req, res) => {
+    try {
+        res.status(200).json({ message: 'API is working' });
+    } catch (error) {
+        res.status(500).json({ message: error.message }); // Handle errors and send a 500 status
+    }
 });
 
-//get all users
+// Get all users
 app.get('/users', async (req, res) => {
-  try {
-    const users = await prisma.user.findMany();//.user is the user model in schema.prisma
-    res.status(200).json(users);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
+    try {
+        const users = await prisma.user.findMany(); // Fetch all users from the database
+        res.status(200).json(users);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
 });
 
-//get user by id
+// Get a user by ID
 app.get('/users/:id', async (req, res) => {
-  try {
-    const user = await prisma.user.findUnique({
-      where: {
-        id: Number(req.params.id),
-      },
-    });
-    res.status(200).json(user);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
+    try {
+        const userId = Number(req.params.id); // Extract and convert the ID to a number
+        const user = await prisma.user.findUnique({ where: { id: userId } }); // Find user by ID
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' }); // Handle case where user is not found
+        }
+        res.status(200).json(user);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
 });
 
-//create user
+// Create a new user
 app.post('/users', async (req, res) => {
-  try {
-    const user = await prisma.user.create({
-      data: {
-        name: req.body.name,
-        email: req.body.email
-      },
-    });
-    res.status(201).json(user);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
+    try {
+        const userData = req.body; // Get user data from the request body
+        const newUser = await prisma.user.create({ data: userData }); // Create the user in the database
+        res.status(201).json(newUser); // Send 201 Created status
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
 });
 
-//update user
+// Update an existing user
 app.put('/users/:id', async (req, res) => {
-  try {
-    const user = await prisma.user.update({
-      where: {
-        id: Number(req.params.id),
-      },
-      data: {
-        name: req.body.name,
-        email: req.body.email
-      },
-    });
-    res.status(200).json(user);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
+    try {
+        const userId = Number(req.params.id);
+        const updateData = req.body; // Get updated user data
+        const updatedUser = await prisma.user.update({
+            where: { id: userId },
+            data: updateData,
+        });
+        if (!updatedUser) {
+            return res.status(404).json({ message: 'User not found' }); // Handle if user doesn't exist
+        }
+        res.status(200).json(updatedUser);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
 });
 
-//delete user
+// Delete a user
 app.delete('/users/:id', async (req, res) => {
-  try {
-    const user = await prisma.user.delete({
-      where: {
-        id: Number(req.params.id),
-      },
-    });
-    res.status(200).json(user);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
+    try {
+        const userId = Number(req.params.id);
+        const deletedUser = await prisma.user.delete({ where: { id: userId } });
+        if (!deletedUser) {
+            return res.status(404).json({ message: 'User not found' }); // Handle if user doesn't exist
+        }
+        res.status(200).json(deletedUser);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
 });
 
-//start server
-const PORT = process.env.PORT || 4000;
+// Start the server
+const PORT = process.env.PORT || 4000; // Use the environment port or 4000 as a default
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
