@@ -17,7 +17,7 @@ datasource db {
   provider = "postgresql" 
   // Indicates the database provider being used, in this case, PostgreSQL.
   
-  url      = env("DATABASE_URL") 
+  url      = env("postgresql://postgres_4qrz_user:drIzJOLXARA9pqz3EQvYLuJ6xtAmf6JD@dpg-cto4dgtds78s73c9vpu0-a/postgres_4qrz") 
   // The `url` is retrieved from the environment variable `DATABASE_URL`.
   // This keeps sensitive information (e.g., database credentials) out of the schema file.
 }
