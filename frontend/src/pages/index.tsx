@@ -11,7 +11,7 @@ interface User {
 
 export default function Home() {
   // Get API URL from environment variables or use a default value
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://userly-backend.onrender.com/';
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 
   // State to store the list of users
   const [users, setUsers] = useState<User[]>([]);
