@@ -19,7 +19,7 @@ app.use((req, res, next) => {
     // Replace '*' with the specific origin(s) of your frontend application(s).
     res.setHeader('Access-Control-Allow-Origin', '*'); // Allows requests from any origin (for development)
     res.setHeader("Access-Control-Allow-Credentials", "true");
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE'); // Allowed HTTP methods
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE', 'OPTIONS'); // Allowed HTTP methods
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type'); // Allowed headers
     next(); // Pass control to the next middleware or route handler
 });
